@@ -1,81 +1,41 @@
 import psycopg2
-from psycopg2.extras import execute_batch
 import logging
-from typing import List, Dict, Any, Optional, Tuple
-from contextlib import contextmanager
+from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 logger = logging.getLogger(__name__)
 
-
 class PostgreSqlManager:
-    def __init__(
-        self,
-        host: str,
-        port: int,
-        database: str,
-        user: str,
-        password: str
-    ):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.user = user
-        self.password = password
+    @staticmethod
+    def get_postgres_connection_env(conn_id: str) -> dict:
+        hook = PostgresHook(postgres_conn_id=conn_id)
+        conn = hook.get_connection(conn_id)
+
+        return {
+            "PGHOST": conn.host,
+            "PGPORT": str(conn.port or 5432),
+            "PGUSER": conn.login,
+            "PGPASSWORD": conn.password,
+            "PGDATABASE": conn.schema or conn.extra_dict.get("database"),
+    }
     
-    @contextmanager
-    def get_connection(self):
-        conn = None
+    @staticmethod
+    def test_connection(env_vars: dict) -> bool:
+        # get_postgres_connection_env에서 리턴된 딕셔너리를 인자로 받아 연결이 가능한지 테스트
         try:
             conn = psycopg2.connect(
-                host=self.host,
-                port=self.port,
-                database=self.database,
-                user=self.user,
-                password=self.password,
-                connect_timeout=30
+                host=env_vars['PGHOST'],
+                port=env_vars['PGPORT'],
+                user=env_vars['PGUSER'],
+                password=env_vars['PGPASSWORD'],
+                dbname=env_vars['PGDATABASE'],
+                connect_timeout=5
             )
-            logger.info(f"DB 연결 성공: {self.host}/{self.database}")
-            yield conn
-        except psycopg2.Error as e:
-            logger.error(f"DB 연결 실패: {e}")
-            raise
-        finally:
-            if conn:
-                conn.close()
-                logger.info("DB 연결 종료")
-    
-    def execute_query(
-        self, 
-        query: str, 
-        params: Optional[Tuple] = None,
-        fetch: bool = False
-    ) -> Optional[List[Tuple]]:
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            try:
-                cursor.execute(query, params)
-                
-                if fetch:
-                    result = cursor.fetchall()
-                    logger.info(f"쿼리 실행 완료: {len(result)}건 조회")
-                    return result
-                else:
-                    conn.commit()
-                    logger.info("쿼리 실행 완료")
-                    return None
-                    
-            except psycopg2.Error as e:
-                conn.rollback()
-                logger.error(f"쿼리 실행 실패: {e}")
-                raise
-            finally:
-                cursor.close()
-    
-    
-    def test_connection(self) -> bool:
-        try:
-            result = self.execute_query("SELECT 1", fetch=True)
-            return result[0][0] == 1
+            cur = conn.cursor()
+            cur.execute("SELECT 1")
+            result = cur.fetchone()
+            cur.close()
+            conn.close()
+            return result[0] == 1
         except Exception as e:
             logger.error(f"연결 테스트 실패: {e}")
             return False
