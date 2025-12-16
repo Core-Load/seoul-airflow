@@ -23,7 +23,7 @@ def test():
     print('aws: ' + AWS_ACCESS_KEY_ID[:3])
     print('s3: ' + S3_BUCKET_NAME[:3])
     print('pguser: ' + PGUSER[:3])
-    print('CI/CD TEST')
+    print('CI/CD TEST??')
     
 
 with DAG(
