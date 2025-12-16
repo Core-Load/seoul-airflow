@@ -59,6 +59,16 @@ jobs:
           echo "Branch: ${{ github.ref }}"
           echo "Repo:   ${{ github.repository }}"
 
+      - name: Ensure Directory Permissions for Airflow
+        run: |
+          echo "Setting up Airflow directories on host..."
+          mkdir -p airflow/logs airflow/dags airflow/plugins || true
+          # 호스트 디렉토리의 소유권을 ec2-user로 설정
+          sudo chown -R ec2-user:ec2-user airflow/logs airflow/dags airflow/plugins || true
+          # 모든 사용자에게 쓰기/읽기/실행 권한 부여 (777)
+          # 컨테이너 내부의 Airflow 유저가 호스트 디렉토리에 쓸 수 있도록 보장합니다.
+          sudo chmod -R 777 airflow/logs airflow/dags airflow/plugins || true
+
       # Docker compose local build & run
       - name: Local Docker Compose Deploy
         run: |
