@@ -4,7 +4,22 @@ from airflow import DAG
 from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 import os
+from airflow.providers.postgres.hooks.postgres import PostgresHook
 
+
+def get_postgres_connection_env(conn_id: str) -> dict:
+    hook = PostgresHook(postgres_conn_id=conn_id)
+    conn = hook.get_connection(conn_id)
+
+    return {
+        "PGHOST": conn.host,
+        "PGPORT": str(conn.port or 5432),
+        "PGUSER": conn.login,
+        "PGPASSWORD": conn.password,
+        "PGDATABASE": conn.schema or conn.extra_dict.get("database"),
+    }
+
+POSTGRES_ENV = get_postgres_connection_env("conn_postgres")
 
 with DAG(
     dag_id="dbt_run_test",
@@ -20,7 +35,7 @@ with DAG(
         api_version="auto",
         auto_remove="success",
         command="run --select models/staging/stg_sample.sql --project-dir /usr/app",
-        docker_url="unix:///var/run/docker.sock",  # 명시적으로 지정
+        docker_url="unix:///var/run/docker.sock",
         tls_hostname=False,
         tls_verify=False,
         network_mode="bridge",
@@ -34,10 +49,6 @@ with DAG(
         ],
         environment={
             "DBT_PROFILES_DIR": "/usr/app",
-            "PGHOST": os.getenv("PGHOST"),
-            "PGPORT": os.getenv("PGPORT", "5432"),
-            "PGUSER": os.getenv("PGUSER"),
-            "PGPASSWORD": os.getenv("PGPASSWORD"),
-            "PGDATABASE": os.getenv("PGDATABASE"),
+            **POSTGRES_ENV,
         }
     )

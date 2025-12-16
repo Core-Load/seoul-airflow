@@ -8,19 +8,14 @@ x-airflow-environment: &airflow-common-env
 
   # dbt 프로젝트 경로
   # DBT_PROJECT_PATH: /Users/kang/DE7-Project/Core-Load/seoul-airflow/dbt  # Mac
-  DBT_PROJECT_PATH: /home/ec2-user/Core-Load/seoul-airflow/dbt         # EC2
+  DBT_PROJECT_PATH: /home/ec2-user/seoul-airflow/dbt         # EC2
 
   # ENV
-  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-  AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
-  S3_BUCKET_NAME: ${S3_BUCKET_NAME}
   PGHOST: ${PGHOST}
   PGPORT: ${PGPORT}
   PGDATABASE: ${PGDATABASE}
   PGUSER: ${PGUSER}
   PGPASSWORD: ${PGPASSWORD}
-  SEOUL_KEY: ${SEOUL_KEY}
   AIRFLOW_WWW_USERNAME: ${AIRFLOW_WWW_USERNAME}
   AIRFLOW_WWW_PASSWORD: ${AIRFLOW_WWW_PASSWORD}
 
@@ -47,7 +42,8 @@ services:
       bash -c "
         echo 'Creating directories and setting permissions...' &&
         mkdir -p /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
-        chown -R 50000:50000 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
+        chown -R 50000:0 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
+        chmod -R 775 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
         echo 'Initializing Airflow Metadata DB...' &&
         airflow db init &&
         echo 'Creating admin user...' &&

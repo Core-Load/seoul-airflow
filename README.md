@@ -11,3 +11,10 @@ DE7 최종 팀 프로젝트
 
 ### 3. 서비스 실행
     docker compose up -d
+
+### 4. Airflow 웹 UI 에서 등록
+#### Variables
+- seoul_api_key
+#### Connections
+- conn_aws
+- conn_postgres
