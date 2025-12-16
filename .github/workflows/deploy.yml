@@ -64,10 +64,10 @@ jobs:
           echo "Setting up Airflow directories on host..."
           mkdir -p airflow/logs airflow/dags airflow/plugins || true
           # 호스트 디렉토리의 소유권을 ec2-user로 설정
-          sudo chown -R ec2-user:ec2-user airflow/logs airflow/dags airflow/plugins || true
-          # 모든 사용자에게 쓰기/읽기/실행 권한 부여 (777)
-          # 컨테이너 내부의 Airflow 유저가 호스트 디렉토리에 쓸 수 있도록 보장합니다.
-          sudo chmod -R 777 airflow/logs airflow/dags airflow/plugins || true
+          sudo chown -R 50000:992 airflow/logs airflow/dags airflow/plugins || true
+          # 그룹에 쓰기 권한 부여 (775)
+          # 컨테이너 내부의 Airflow 유저가 호스트 디렉토리에 쓸 수 있도록 보장
+          sudo chmod -R 775 airflow/logs airflow/dags airflow/plugins || true
 
       # Docker compose local build & run
       - name: Local Docker Compose Deploy
@@ -87,5 +87,6 @@ jobs:
       # 다음 실행을 위한 권한 정리
       - name: Fix log permissions
         run: |
-          sudo chown -R ec2-user:ec2-user airflow/logs || true
-          sudo chmod -R 755 airflow/logs || true
+          DOCKER_GID=$(getent group docker | cut -d: -f3)
+          sudo chown -R 50000:$DOCKER_GID airflow/logs || true
+          sudo chmod -R 775 airflow/logs || true

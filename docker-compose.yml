@@ -47,8 +47,8 @@ services:
       bash -c "
         echo 'Creating directories and setting permissions...' &&
         mkdir -p /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
-        # chown -R 50000:50000 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
-        # chown -R 50000:992 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
+        chown -R 50000:0 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
+        chmod -R 775 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
         echo 'Initializing Airflow Metadata DB...' &&
         airflow db init &&
         echo 'Creating admin user...' &&
