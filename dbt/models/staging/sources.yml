@@ -1,0 +1,11 @@
+version: 1
+
+sources:
+  - name: raw_data
+    schema: raw_data
+    database: "{{ env_var('PGDATABASE') }}"
+    
+    # 현재 테이블이 없어서 일단 주석 처리
+    # tables:
+    #   - name: table1  # raw_data.table1 이라는 테이블을 참조
+    #   - name: table2  # raw_data.table2 이라는 테이블을 참조

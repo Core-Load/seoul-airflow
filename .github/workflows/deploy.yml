@@ -1,0 +1,81 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 1. 외부 fork PR은 GitHub-hosted runner에서만 검증 실행
+  external-pr-check:
+    if: github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name != github.repository
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate (Lint/Test optional)
+        run: |
+          echo "External fork PR detected. Running safe validation on GitHub-hosted runner."
+
+  # 2. 내부 PR / main push / 수동 실행 → self-hosted runner 배포
+  deploy:
+    if: |
+      github.event_name != 'pull_request'
+      || github.event.pull_request.head.repo.full_name == github.repository
+
+    runs-on: self-hosted
+
+    steps:
+      # 권한 문제 해결을 위한 cleanup
+      - name: Clean workspace
+        run: |
+          cd ${{ github.workspace }} || true
+          sudo chown -R ec2-user:ec2-user . || true
+          sudo chmod -R 755 . || true
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # 워크스페이스 밖에 있는 .env 파일을 복사
+      - name: Copy .env file
+        run: |
+          if [ -f /home/ec2-user/.env ]; then
+            cp /home/ec2-user/.env .env
+            echo ".env file copied successfully"
+          else
+            echo "Warning: .env file not found at /home/ec2-user/.env"
+          fi
+
+      - name: Show deployment info
+        run: |
+          echo "Deploying on self-hosted runner (EC2)"
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Repo:   ${{ github.repository }}"
+
+      # Docker compose local build & run
+      - name: Local Docker Compose Deploy
+        run: |
+          echo "Stopping previous containers..."
+          docker compose down || true
+
+          echo "Running local build..."
+          docker compose build
+
+          echo "Starting new containers..."
+          docker compose up -d
+
+      - name: Cleanup unused images
+        run: docker image prune -af || true
+      
+      # 다음 실행을 위한 권한 정리
+      - name: Fix log permissions
+        run: |
+          sudo chown -R ec2-user:ec2-user airflow/logs || true
+          sudo chmod -R 755 airflow/logs || true
