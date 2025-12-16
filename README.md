@@ -14,6 +14,7 @@ DE7 최종 팀 프로젝트
 
 ### 4. Airflow 웹 UI 에서 등록
 #### Variables
+- s3_bucket_name
 - seoul_api_key
 #### Connections
 - conn_aws
