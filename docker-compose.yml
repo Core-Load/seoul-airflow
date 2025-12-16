@@ -8,7 +8,7 @@ x-airflow-environment: &airflow-common-env
 
   # dbt 프로젝트 경로
   # DBT_PROJECT_PATH: /Users/kang/DE7-Project/Core-Load/seoul-airflow/dbt  # Mac
-  DBT_PROJECT_PATH: /home/ec2-user/Core-Load/seoul-airflow/dbt         # EC2
+  DBT_PROJECT_PATH: /home/ec2-user/seoul-airflow/dbt         # EC2
 
   # ENV
   AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
