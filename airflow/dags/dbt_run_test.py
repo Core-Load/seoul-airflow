@@ -1,25 +1,20 @@
 from __future__ import annotations
 from datetime import datetime
 from airflow import DAG
+from airflow.operators.python import PythonOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 import os
-from airflow.providers.postgres.hooks.postgres import PostgresHook
+from db_utils import PostgreSqlManager
 
+POSTGRES_CONN_ID = "conn_postgres"
+POSTGRES_ENV = PostgreSqlManager.get_postgres_connection_env(POSTGRES_CONN_ID)
 
-def get_postgres_connection_env(conn_id: str) -> dict:
-    hook = PostgresHook(postgres_conn_id=conn_id)
-    conn = hook.get_connection(conn_id)
-
-    return {
-        "PGHOST": conn.host,
-        "PGPORT": str(conn.port or 5432),
-        "PGUSER": conn.login,
-        "PGPASSWORD": conn.password,
-        "PGDATABASE": conn.schema or conn.extra_dict.get("database"),
-    }
-
-POSTGRES_ENV = get_postgres_connection_env("conn_postgres")
+def check_db_connection():
+    is_connected = PostgreSqlManager.test_connection(POSTGRES_ENV)
+    if not is_connected:
+        raise Exception("DB 연결 테스트 실패")
+    print("DB 연결 테스트 성공")
 
 with DAG(
     dag_id="dbt_run_test",
@@ -28,7 +23,14 @@ with DAG(
     catchup=False,
     tags=["dbt", "test"]
 ) as dag:
+    
+    # 연결 테스트
+    test_db_conn = PythonOperator(
+        task_id="test_db_connection",
+        python_callable=check_db_connection
+    )
 
+    # dbt 실행 테스트 (stg_sample.sql 실행)
     dbt_run = DockerOperator(
         task_id="dbt_run",
         image="dbt-runner:latest",
@@ -52,3 +54,6 @@ with DAG(
             **POSTGRES_ENV,
         }
     )
+
+    # 순서 보장: 연결 테스트 성공 후 dbt 실행
+    test_db_conn >> dbt_run
