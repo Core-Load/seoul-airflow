@@ -16,6 +16,7 @@ DE7 최종 팀 프로젝트
 #### Variables
 - s3_bucket_name
 - seoul_api_key
+- slack_url
 #### Connections
 - conn_aws
 - conn_postgres
