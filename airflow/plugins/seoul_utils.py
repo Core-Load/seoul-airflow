@@ -33,7 +33,11 @@ class SeoulAPI:
     
 
     @staticmethod
-    def generate_s3_key(api_name: str, target_date: Union[datetime, str, None] = None) -> str:
+    def generate_s3_key(
+        api_name: str
+        , folder_name: str
+        , target_date: Union[datetime, str, None] = None
+    ) -> str:
         # 결과 예시: "2025-12-17/202512171130-202512171130-서울시_권역별_실시간_대기환경_현황.json"
 
         current_time = SeoulAPI.get_kst_now()
@@ -52,7 +56,10 @@ class SeoulAPI:
             target_date_str = target_date
         
         # S3 키 생성: 날짜폴더/적재날짜-대상날짜-API명.json
-        s3_key = f"{folder_date}/{load_date}-{target_date_str}-{api_name}.json"
+        s3_key = (
+            f"{folder_date}/{folder_name}/"
+            f"{load_date}-{target_date_str}-{api_name}.json"
+        )
         
         return s3_key
     

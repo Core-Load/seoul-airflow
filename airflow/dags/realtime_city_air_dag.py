@@ -22,7 +22,7 @@ def save_data_to_s3(**context):
 
     # S3 키 생성 (실시간 데이터이므로 target_date는 None)
     api_name = "서울시_권역별_실시간_대기환경_현황"
-    s3_key = SeoulAPI.generate_s3_key(api_name=api_name)
+    s3_key = SeoulAPI.generate_s3_key(api_name=api_name, folder_name="weather")
 
     # S3에 업로드
     s3 = S3Manager(
@@ -38,7 +38,7 @@ def save_data_to_s3(**context):
 with DAG(
     dag_id="realtime_city_air_dag",
     start_date=datetime(2025, 1, 1),
-    schedule_interval=None,
+    schedule_interval="0,30 * * * *",   # 매 시각 00분, 30분
     catchup=False,
     tags=["seoul", "weather"]
 ) as dag:
