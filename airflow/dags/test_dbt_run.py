@@ -8,12 +8,15 @@ import os
 from db_utils import PostgreSqlManager
 
 POSTGRES_CONN_ID = "conn_postgres"
-POSTGRES_ENV = PostgreSqlManager.get_postgres_connection_env(POSTGRES_CONN_ID)
+pg_manager = PostgreSqlManager(conn_id=POSTGRES_CONN_ID)
+
+def get_postgres_env():
+    return pg_manager.get_postgres_connection_env()
 
 def check_db_connection():
-    is_connected = PostgreSqlManager.test_connection(POSTGRES_ENV)
+    is_connected = pg_manager.test_connection()
     if not is_connected:
-        raise Exception("DB 연결 테스트 실패")
+        raise Exception(f"DB 연결 테스트 실패: {POSTGRES_CONN_ID}")
     print("DB 연결 테스트 성공")
 
 with DAG(
@@ -24,13 +27,13 @@ with DAG(
     tags=["dbt", "test"]
 ) as dag:
     
-    # 연결 테스트
+    # 1. 연결 테스트
     test_db_conn = PythonOperator(
         task_id="test_db_connection",
         python_callable=check_db_connection
     )
 
-    # dbt 실행 테스트 (stg_sample.sql 실행)
+    # 2. dbt 실행 테스트 (stg_sample.sql 실행)
     dbt_run = DockerOperator(
         task_id="dbt_run",
         image="dbt-runner:latest",
@@ -51,7 +54,7 @@ with DAG(
         ],
         environment={
             "DBT_PROFILES_DIR": "/usr/app",
-            **POSTGRES_ENV,
+            **get_postgres_env(),
         }
     )
 
