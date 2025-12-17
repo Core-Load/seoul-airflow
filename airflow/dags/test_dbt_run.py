@@ -17,7 +17,7 @@ def check_db_connection():
     print("DB 연결 테스트 성공")
 
 with DAG(
-    dag_id="dbt_run_test",
+    dag_id="test_dbt_run",
     start_date=datetime(2025, 1, 1),
     schedule_interval=None,
     catchup=False,
