@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from airflow import DAG
 from airflow.decorators import task
 from airflow.operators.python import PythonOperator
@@ -7,7 +7,7 @@ import sys
 
 # 커스텀 플러그인 import
 sys.path.insert(0, '/opt/airflow/plugins')
-from seoul_api import SeoulAPI
+from seoul_utils import SeoulAPI
 from s3_utils import S3Manager
 from db_utils import PostgreSqlManager
 
@@ -16,8 +16,8 @@ from db_utils import PostgreSqlManager
 def test():
     PGUSER = os.getenv('PGUSER')
     print("Hello, World!")
-    print(SeoulAPI.get_yesterday())
     print('pguser: ' + PGUSER[:3])
+    print('today:' + SeoulAPI.format_date(SeoulAPI.get_kst_now()))
     
 
 with DAG(
