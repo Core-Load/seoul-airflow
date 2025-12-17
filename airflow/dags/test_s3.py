@@ -29,7 +29,7 @@ def list_s3_objects():
         print(f"{S3_BUCKET_NAME} 버킷이 비어있거나 접근 가능한 파일이 없습니다.")
 
 with DAG(
-    dag_id="s3_test",
+    dag_id="test_s3",
     start_date=datetime(2025, 1, 1),
     schedule_interval=None,
     catchup=False,

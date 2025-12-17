@@ -16,7 +16,7 @@ class PostgreSqlManager:
             "PGUSER": conn.login,
             "PGPASSWORD": conn.password,
             "PGDATABASE": conn.schema or conn.extra_dict.get("database"),
-    }
+        }
     
     @staticmethod
     def test_connection(env_vars: dict) -> bool:
