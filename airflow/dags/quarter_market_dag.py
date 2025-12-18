@@ -55,7 +55,7 @@ def save_to_s3(all_data):
     s3_key='one-off/market/2025_3Q_서울시_상권_추정매출.json'
     s3 = S3Manager(
         conn_id=AWS_CONN_ID,
-        bucker_name=S3_BUCKET_NAME
+        bucket_name=S3_BUCKET_NAME
     )
     
     s3.upload_json(key=s3_key, data=all_data)
