@@ -3,12 +3,14 @@ x-airflow-environment: &airflow-common-env
   AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS: "false"
   AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
 
+  # KST 설정
+  TZ: Asia/Seoul
+  AIRFLOW__CORE__DEFAULT_TIMEZONE: "Asia/Seoul"
+
   # S3 원격 로깅 설정 추가
   AIRFLOW__LOGGING__REMOTE_LOGGING: "true"
   AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER: "s3://${S3_BUCKET_NAME}/airflow_logs"
   AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID: "conn_aws"
-
-  # 로컬 로그도 유지 (옵션)
   AIRFLOW__LOGGING__BASE_LOG_FOLDER: "/opt/airflow/logs"
 
   # Docker 설정
