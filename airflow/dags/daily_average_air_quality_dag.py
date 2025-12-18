@@ -60,7 +60,9 @@ def create_table_if_not_exists(**context):
             SPDX NUMERIC(10, 4),
             PM NUMERIC(10, 2),
             FPM NUMERIC(10, 2),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (MSRMT_DT, MSRSTN_NM)
         )
     """
     db.create_table(create_query)
@@ -80,10 +82,11 @@ def insert_data_to_postgres(**context):
         table_name=TABLE_NAME,
         json_data=data,
         json_path=["DailyAverageAirQuality", "row"],  # JSON 내 데이터 경로
-        filter_func=filter_valid_data
-        # conflict_columns 없음 - 중복 허용, 모든 데이터 적재
+        filter_func=filter_valid_data,
+        conflict_columns=["MSRMT_DT", "MSRSTN_NM"],
+        update_columns=["NTDX", "OZON", "CBMX", "SPDX", "PM", "FPM", "updated_at"]
     )
-    print(f"데이터 INSERT 완료: {inserted_count}건")
+    print(f"데이터 UPSERT 완료: {inserted_count}건")
 
 
 with DAG(
