@@ -83,7 +83,7 @@ def fetch_and_upload(**context):
             time_part = execution_time.strftime("%Y%m%d%H%M")
 
             key = (
-                f"{date_part}/city_data/"
+                f"/{date_part}/city_data/"
                 f"{time_part}-서울시_실시간_도시데이터-{area}.json"
             )
 
