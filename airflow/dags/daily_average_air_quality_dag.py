@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models import Variable
@@ -13,12 +13,12 @@ AWS_CONN_ID = "conn_aws"
 POSTGRES_CONN_ID = "conn_postgres"
 S3_BUCKET_NAME = Variable.get("s3_bucket_name")
 SCHEMA_NAME = "raw_data"
-TABLE_NAME = f"{SCHEMA_NAME}.realtime_city_air"
+TABLE_NAME = f"{SCHEMA_NAME}.daily_average_air_quality"
+TARGET_DATE = (SeoulAPI.get_kst_now() - timedelta(days=1)).strftime('%Y%m%d')
 
-
-def fetch_seoul_air_quality():
+def fetch_yesterday_air_quality():
     api = SeoulAPI()
-    data = api.api_request("json/RealtimeCityAir/1/25/")
+    data = api.api_request(f"json/DailyAverageAirQuality/1/50/{TARGET_DATE}")
     return data
 
 def save_data_to_s3(**context):
@@ -26,8 +26,10 @@ def save_data_to_s3(**context):
     data = ti.xcom_pull(task_ids="req_api")
 
     # S3 키 생성 (실시간 데이터이므로 target_date는 None)
-    api_name = "서울시_권역별_실시간_대기환경_현황"
-    s3_key = SeoulAPI.generate_s3_key(api_name=api_name, folder_name="weather")
+    api_name = "서울시_일별_평균_대기오염도_정보"
+    folder_name = "weather"
+    target_date = TARGET_DATE + "0000"
+    s3_key = SeoulAPI.generate_s3_key(api_name, folder_name, target_date)
 
     # S3에 업로드
     s3 = S3Manager(
@@ -50,18 +52,14 @@ def create_table_if_not_exists(**context):
     # 테이블 생성 쿼리
     create_query = f"""
         CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-            MSRMT_DT VARCHAR(12),
-            SAREA_NM VARCHAR(50),
+            MSRMT_DT VARCHAR(8),
             MSRSTN_NM VARCHAR(50),
+            NTDX NUMERIC(10, 4),
+            OZON NUMERIC(10, 4),
+            CBMX NUMERIC(10, 2),
+            SPDX NUMERIC(10, 4),
             PM NUMERIC(10, 2),
             FPM NUMERIC(10, 2),
-            OZON NUMERIC(10, 3),
-            NTDX NUMERIC(10, 3),
-            CBMX NUMERIC(10, 2),
-            SPDX NUMERIC(10, 3),
-            CAI_GRD VARCHAR(20),
-            CAI_IDX NUMERIC(10, 2),
-            CRST_SBSTN VARCHAR(20),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (MSRMT_DT, MSRSTN_NM)
@@ -83,33 +81,30 @@ def insert_data_to_postgres(**context):
     inserted_count = db.insert_from_json(
         table_name=TABLE_NAME,
         json_data=data,
-        json_path=["RealtimeCityAir", "row"],  # JSON 내 데이터 경로
+        json_path=["DailyAverageAirQuality", "row"],  # JSON 내 데이터 경로
         filter_func=filter_valid_data,
         conflict_columns=["MSRMT_DT", "MSRSTN_NM"],
-        update_columns=[
-            "SAREA_NM", "PM", "FPM", "OZON", "NTDX", 
-            "CBMX", "SPDX", "CAI_GRD", "CAI_IDX", "CRST_SBSTN", "updated_at"
-        ]
+        update_columns=["NTDX", "OZON", "CBMX", "SPDX", "PM", "FPM", "updated_at"]
     )
     print(f"데이터 UPSERT 완료: {inserted_count}건")
 
 
 with DAG(
-    dag_id="realtime_city_air_dag",
+    dag_id="daily_average_air_quality_dag",
     start_date=datetime(2025, 1, 1),
-    schedule_interval="0,30 * * * *",   # 매 시각 00분, 30분
+    schedule_interval="0 10 * * *",     # 매일 오전 10시에 실행
     catchup=False,
     tags=["seoul", "weather"],
     on_failure_callback=on_failure_callback,
     default_args={
-        "on_failure_callback": on_failure_callback # 개별 태스크 실패 시에도 동작하도록 보장
+        "on_failure_callback": on_failure_callback
     }
 ) as dag:
 
     # 1. API 호출
     req_api = PythonOperator(
         task_id="req_api",
-        python_callable=fetch_seoul_air_quality
+        python_callable=fetch_yesterday_air_quality
     )
 
     # 2. S3 저장

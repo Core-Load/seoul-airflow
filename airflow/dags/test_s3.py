@@ -25,11 +25,11 @@ def list_s3_objects():
     files = s3.get_list_s3_objects(prefix=prefix)
     
     if files:
-        print(f"{S3_BUCKET_AME}/{today} 폴더 내 조회된 파일 수: {len(files)}")
+        print(f"{S3_BUCKET_NAME}/{today} 폴더 내 조회된 파일 수: {len(files)}")
         for f in files[:10]: # 최대 10개 출력
             print(f"  - {f}")
     else:
-        print(f"{S3_BUCKET_AME}/{today} 폴더가 비어있거나 접근 가능한 파일이 없습니다.")
+        print(f"{S3_BUCKET_NAME}/{today} 폴더가 비어있거나 접근 가능한 파일이 없습니다.")
 
 default_args= {
     'on_failure_callback': slack.on_failure_callback
