@@ -97,7 +97,7 @@ def insert_data_to_postgres(**context):
 with DAG(
     dag_id="realtime_city_air_dag",
     start_date=datetime(2025, 1, 1),
-    schedule_interval="0,30 * * * *",   # 매 시각 00분, 30분
+    schedule_interval="15,45 * * * *",   # 매 시각 15분, 45분
     catchup=False,
     tags=["seoul", "weather"],
     on_failure_callback=on_failure_callback,

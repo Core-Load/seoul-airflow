@@ -11,5 +11,7 @@ models:
   coreload_proj:
     staging:
       +materialized: view
+    intermediate:
+      +materialized: table
     marts:
       +materialized: table
