@@ -52,6 +52,28 @@ jobs:
             echo "Warning: .env file not found at /home/ec2-user/.env"
           fi
 
+      # 체크아웃된 코드를 실제 서비스 디렉토리로 동기화
+      - name: Sync code to service directory
+        run: |
+          echo "Syncing code from GitHub Actions workspace to service directory..."
+          
+          # 대상 디렉토리가 없으면 생성
+          sudo mkdir -p /home/ec2-user/seoul-airflow
+          
+          # rsync를 사용하여 동기화 (삭제된 파일도 반영)
+          sudo rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.env' \
+            --exclude='airflow/logs' \
+            --exclude='*.pyc' \
+            --exclude='__pycache__' \
+            ${{ github.workspace }}/ /home/ec2-user/seoul-airflow/
+          
+          # 소유권 설정
+          sudo chown -R ec2-user:ec2-user /home/ec2-user/seoul-airflow
+          
+          echo "Code sync completed"
+
       - name: Show deployment info
         run: |
           echo "Deploying on self-hosted runner (EC2)"
@@ -62,6 +84,7 @@ jobs:
       - name: Ensure Directory Permissions for Airflow
         run: |
           echo "Setting up Airflow directories on host..."
+          cd /home/ec2-user/seoul-airflow
           mkdir -p airflow/logs airflow/dags airflow/plugins || true
           # 호스트 디렉토리의 소유권을 ec2-user로 설정
           sudo chown -R 50000:992 airflow/logs airflow/dags airflow/plugins || true
@@ -72,6 +95,8 @@ jobs:
       # Docker compose local build & run
       - name: Local Docker Compose Deploy
         run: |
+          cd /home/ec2-user/seoul-airflow
+          
           echo "Stopping previous containers..."
           docker compose down || true
 
@@ -87,6 +112,7 @@ jobs:
       # 다음 실행을 위한 권한 정리
       - name: Fix log permissions
         run: |
+          cd /home/ec2-user/seoul-airflow
           DOCKER_GID=$(getent group docker | cut -d: -f3)
           sudo chown -R 50000:$DOCKER_GID airflow/logs || true
           sudo chmod -R 775 airflow/logs || true
