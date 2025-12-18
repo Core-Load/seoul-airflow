@@ -42,16 +42,6 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # 워크스페이스 밖에 있는 .env 파일을 복사
-      - name: Copy .env file
-        run: |
-          if [ -f /home/ec2-user/.env ]; then
-            cp /home/ec2-user/.env .env
-            echo ".env file copied successfully"
-          else
-            echo "Warning: .env file not found at /home/ec2-user/.env"
-          fi
-
       # 체크아웃된 코드를 실제 서비스 디렉토리로 동기화
       - name: Sync code to service directory
         run: |
@@ -63,11 +53,20 @@ jobs:
           # rsync를 사용하여 동기화 (삭제된 파일도 반영)
           sudo rsync -av --delete \
             --exclude='.git' \
-            --exclude='.env' \
             --exclude='airflow/logs' \
             --exclude='*.pyc' \
             --exclude='__pycache__' \
             ${{ github.workspace }}/ /home/ec2-user/seoul-airflow/
+          
+          # .env 파일을 서비스 디렉토리에 복사
+          if [ -f /home/ec2-user/.env ]; then
+            sudo cp /home/ec2-user/.env /home/ec2-user/seoul-airflow/.env
+            sudo chown ec2-user:ec2-user /home/ec2-user/seoul-airflow/.env
+            echo ".env file copied to service directory"
+          else
+            echo "Warning: .env file not found at /home/ec2-user/.env"
+            exit 1
+          fi
           
           # 소유권 설정
           sudo chown -R ec2-user:ec2-user /home/ec2-user/seoul-airflow
@@ -80,6 +79,7 @@ jobs:
           echo "Event: ${{ github.event_name }}"
           echo "Branch: ${{ github.ref }}"
           echo "Repo:   ${{ github.repository }}"
+          echo "Service directory: /home/ec2-user/seoul-airflow"
 
       - name: Ensure Directory Permissions for Airflow
         run: |
