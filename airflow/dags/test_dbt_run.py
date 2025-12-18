@@ -33,13 +33,13 @@ with DAG(
         python_callable=check_db_connection
     )
 
-    # 2. dbt 실행 테스트 (stg_sample.sql 실행)
+    # 2. dbt 실행 테스트 (파일명에 sample이 포함된 모든 모델 실행)
     dbt_run = DockerOperator(
         task_id="dbt_run",
         image="dbt-runner:latest",
         api_version="auto",
         auto_remove="success",
-        command="run --select models/staging/stg_sample.sql --project-dir /usr/app",
+        command="run --select *sample* --project-dir /usr/app",
         docker_url="unix:///var/run/docker.sock",
         tls_hostname=False,
         tls_verify=False,
