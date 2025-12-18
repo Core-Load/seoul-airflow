@@ -4,6 +4,10 @@
     {% if node.path.startswith('staging') %}
         {{ return('raw_data') }}
 
+    {# raw_data.int_ #}
+    {% elif node.path.startswith('intermediate') %}
+        {{ return('raw_data') }}
+
     {# analytics.dim_ & analytics.fact_ #}
     {% elif node.path.startswith('marts') %}
         {{ return('analytics') }}
