@@ -38,7 +38,7 @@ class SeoulAPI:
         , folder_name: str
         , target_date: Union[datetime, str, None] = None
     ) -> str:
-        # 결과 예시: "2025-12-17/202512171130-202512171130-서울시_권역별_실시간_대기환경_현황.json"
+        # 결과 예시: "2025-12-17/weather/202512171130-202512171130-서울시_권역별_실시간_대기환경_현황.json"
 
         current_time = SeoulAPI.get_kst_now()
         folder_date = current_time.strftime('%Y-%m-%d')

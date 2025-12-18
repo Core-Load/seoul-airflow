@@ -5,6 +5,7 @@ from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 from s3_utils import S3Manager
 from seoul_utils import SeoulAPI
+from slack import on_failure_callback
 
 AWS_CONN_ID = "conn_aws"
 S3_BUCKET_NAME = Variable.get("s3_bucket_name")
@@ -36,7 +37,8 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule_interval=None,
     catchup=False,
-    tags=["s3", "test"]
+    tags=["s3", "test"],
+    on_failure_callback = on_failure_callback
 ) as dag:
 
     # 파일 목록 조회 (연결은 자동으로 처리됨)
