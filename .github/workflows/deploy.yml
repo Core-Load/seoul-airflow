@@ -42,19 +42,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # 러너 워크스페이스의 최신 파일을 실제 서비스 폴더(~/seoul-airflow)로 동기화
-      - name: Sync files to Service Directory
-        run: |
-          mkdir -p /home/ec2-user/seoul-airflow
-          # rsync를 사용하여 파일을 복사하며, 러너에서 삭제된 파일은 대상 폴더에서도 삭제되도록 설정
-          rsync -avz --delete ${{ github.workspace }}/ /home/ec2-user/seoul-airflow/
-          echo "Sync completed to /home/ec2-user/seoul-airflow"
-
       # 워크스페이스 밖에 있는 .env 파일을 복사
       - name: Copy .env file
         run: |
           if [ -f /home/ec2-user/.env ]; then
-            cp /home/ec2-user/.env /home/ec2-user/seoul-airflow/.env
+            cp /home/ec2-user/.env .env
             echo ".env file copied successfully"
           else
             echo "Warning: .env file not found at /home/ec2-user/.env"
@@ -69,7 +61,6 @@ jobs:
 
       - name: Ensure Directory Permissions for Airflow
         run: |
-          cd /home/ec2-user/seoul-airflow
           echo "Setting up Airflow directories on host..."
           mkdir -p airflow/logs airflow/dags airflow/plugins || true
           # 호스트 디렉토리의 소유권을 ec2-user로 설정
@@ -81,7 +72,6 @@ jobs:
       # Docker compose local build & run
       - name: Local Docker Compose Deploy
         run: |
-          cd /home/ec2-user/seoul-airflow
           echo "Stopping previous containers..."
           docker compose down || true
 
@@ -97,7 +87,6 @@ jobs:
       # 다음 실행을 위한 권한 정리
       - name: Fix log permissions
         run: |
-          cd /home/ec2-user/seoul-airflow
           DOCKER_GID=$(getent group docker | cut -d: -f3)
           sudo chown -R 50000:$DOCKER_GID airflow/logs || true
           sudo chmod -R 775 airflow/logs || true
