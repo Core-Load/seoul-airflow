@@ -47,7 +47,7 @@ seoul_3Q_market_info AS (
         CAST(CAST("TUES_SELNG_CO" AS NUMERIC) AS INT) AS tues_selng_co,
         CAST(CAST("WED_SELNG_CO" AS NUMERIC) AS INT) AS wed_selng_co,
         CAST(CAST("THUR_SELNG_CO" AS NUMERIC) AS INT) AS thur_selng_co,
-        CAST(CAST("FRI_SELNG_CO" AS INT) AS NUMERIC) AS fri_selng_co,
+        CAST(CAST("FRI_SELNG_CO" AS NUMERIC) AS INT) AS fri_selng_co,
         CAST(CAST("SAT_SELNG_CO" AS NUMERIC) AS INT) AS sat_selng_co,
         CAST(CAST("SUN_SELNG_CO" AS NUMERIC) AS INT) AS sun_selng_co,
         CAST(CAST("TMZON_00_06_SELNG_CO" AS NUMERIC) AS INT) AS tmzon_00_06_selng_co,
