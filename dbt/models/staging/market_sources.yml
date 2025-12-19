@@ -1,12 +1,14 @@
-version: 1
+# version: 1
 
-sources:
-  - name: raw_data
-    schema: raw_data
-    database: "{{ env_var('PGDATABASE') }}"
-    tags: ["market_quarter"]
+# sources:
+#   - name: raw_data
+#     schema: raw_data
+#     database: "{{ env_var('PGDATABASE') }}"
+#     tags: ["market_quarter"]
     
-    # 현재 테이블이 없어서 일단 주석 처리
-    tables:
-      - name: 3Q_market_info  # 테이블명
-        description: "서울시 상권 3분기 분석 데이터"
+#     # 현재 테이블이 없어서 일단 주석 처리
+#     tables:
+#       - name: 3Q_market_info  # 테이블명
+#         description: "서울시 상권 3분기 분석 데이터"
+
+# 검토 후 삭제 예정
