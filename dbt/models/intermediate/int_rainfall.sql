@@ -17,4 +17,4 @@ FROM {{ ref('stg_list_rainfall_service') }}
 {% if is_incremental() %}
 WHERE updated_at > (SELECT max(updated_at) FROM {{ this }})
 {% endif %}
-ORDER BY rf_cd, updated_at DESC
+ORDER BY rf_cd, data_clct_tm DESC, updated_at DESC
