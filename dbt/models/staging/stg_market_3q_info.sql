@@ -6,8 +6,8 @@ WITH source AS (
 seoul_3Q_market_info AS (
     SELECT
         CAST("STDR_YYQU_CD" AS INT) AS STDR_YYQU_CD,
-        "TRDAR_SE_CD",
-        "TRDAR_SE_CD_NM",
+        "TRDAR_SE_CD" AS TRDAR_SE_CD,
+        "TRDAR_SE_CD_NM" AS TRDAR_SE_CD_NM,
         CAST("TRDAR_CD" AS INT) AS TRDAR_CD,
         "TRDAR_CD_NM" AS TRDAR_CD_NM,
         "SVC_INDUTY_CD" AS SVC_INDUTY_CD,
