@@ -14,5 +14,5 @@ SELECT
         WHEN r.rn_10m > 0 AND r.rn_10m <= 1 THEN '약한비'
         WHEN r.rn_10m > 1 AND r.rn_10m <= 5 THEN '보통비'
         WHEN r.rn_10m > 5 THEN '강한비'
-    END AS rainfall_level_kr,
+    END AS rainfall_level_kr
 FROM {{ ref('int_rainfall') }} as r
