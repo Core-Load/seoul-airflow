@@ -13,4 +13,4 @@ FROM raw_data.realtime_city_data
 CROSS JOIN LATERAL
     jsonb_array_elements(
         data->'CITYDATA'->'PRK_STTS'
-    ) AS parking;
+    ) AS parking

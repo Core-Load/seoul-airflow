@@ -14,4 +14,4 @@ FROM raw_data.realtime_city_data
 CROSS JOIN LATERAL
     jsonb_array_elements(
         data->'CITYDATA'->'ROAD_TRAFFIC_STTS'->'ROAD_TRAFFIC_STTS'
-    ) AS road;
+    ) AS road
