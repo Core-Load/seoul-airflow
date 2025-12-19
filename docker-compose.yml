@@ -53,10 +53,8 @@ services:
     user: "0:0"  # root로 실행
     entrypoint: >
       bash -c "
-        echo 'Creating directories and setting permissions...' &&
+        echo 'Creating directories...' &&
         mkdir -p /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
-        chown -R 50000:0 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
-        chmod -R 775 /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins &&
         echo 'Initializing Airflow Metadata DB...' &&
         airflow db init &&
         echo 'Creating admin user...' &&
