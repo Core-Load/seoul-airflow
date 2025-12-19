@@ -4,6 +4,7 @@ sources:
   - name: raw_data
     schema: raw_data
     database: "{{ env_var('PGDATABASE') }}"
+    tags: ["market_quarter"]
     
     # 현재 테이블이 없어서 일단 주석 처리
     tables:
