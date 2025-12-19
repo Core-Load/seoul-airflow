@@ -40,7 +40,7 @@ with DAG(
         api_version="auto",
         auto_remove="success",
         # command="run --select stg_market_3q_info --project-dir /usr/app",
-        command="run --select +dim_market_quarter_hierarchy +fact_market_quarter_sales --project-dir /usr/app",
+        command="run --select +dim_market_quarter +fact_market_quarter --project-dir /usr/app",
         docker_url="unix:///var/run/docker.sock",
         tls_hostname=False,
         tls_verify=False,
