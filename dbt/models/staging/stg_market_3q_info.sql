@@ -1,10 +1,9 @@
 -- models/staging/stg_seoul_vibe.sql
--- 연습 겸 임시로 만듦. 나중에 수정할 것
 WITH source AS (
     SELECT * FROM {{ source('raw_data', '3Q_market_info') }}
 )
 
-Seoul_3Q_market_info AS (
+seoul_3Q_market_info AS (
     SELECT
         CAST(STDR_YYQU_CD AS INT) AS STDR_YYQU_CD,
         TRDAR_SE_CD,
@@ -69,4 +68,4 @@ Seoul_3Q_market_info AS (
     FROM source
 )
 
-SELECT * FROM Seoul_3Q_market_info
+SELECT * FROM seoul_3Q_market_info

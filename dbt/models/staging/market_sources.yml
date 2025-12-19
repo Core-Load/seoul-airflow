@@ -1,7 +1,7 @@
 version: 1
 
 sources:
-  - name: seoul_market_quarter_data
+  - name: raw_data
     schema: raw_data
     database: "{{ env_var('PGDATABASE') }}"
     
