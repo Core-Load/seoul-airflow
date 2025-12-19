@@ -5,7 +5,12 @@ sources:
     schema: raw_data
     database: "{{ env_var('PGDATABASE') }}"
     
-    # 현재 테이블이 없어서 일단 주석 처리
-    # tables:
-    #   - name: table1  # raw_data.table1 이라는 테이블을 참조
-    #   - name: table2  # raw_data.table2 이라는 테이블을 참조
+    tables:
+      - name: realtime_city_data
+        description: "서울시 실시간 도시데이터"
+      - name: realtime_city_air
+        description: "서울시 권역별 실시간 대기환경 현황"
+      - name: daily_average_air_quality
+        description: "서울시 일별 평균 대기오염도 정보"
+      - name: list_rainfall_service
+        description: "서울시 강우량 정보"
