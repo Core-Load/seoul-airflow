@@ -1,7 +1,7 @@
 -- models/staging/stg_seoul_vibe.sql
 WITH source AS (
     SELECT * FROM {{ source('raw_data', '3Q_market_info') }}
-)
+),
 
 seoul_3Q_market_info AS (
     SELECT
