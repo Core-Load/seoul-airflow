@@ -65,7 +65,9 @@ def create_table_if_not_exists(**context):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (RF_CD, DATA_CLCT_TM)
-        )
+        );
+        CREATE INDEX IF NOT EXISTS idx_lrs_rf_cd_updated_at
+        ON {TABLE_NAME} (RF_CD, updated_at DESC);
     """
     db.create_table(create_query)
     print(f"테이블 생성 완료: {TABLE_NAME}")
@@ -113,7 +115,7 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule_interval="*/10 * * * *",   # 10분마다 실행
     catchup=False,
-    tags=["seoul", "weather"],
+    tags=["seoul", "weather", "s3", "postgres"],
     on_failure_callback=on_failure_callback,
     default_args={
         "on_failure_callback": on_failure_callback
