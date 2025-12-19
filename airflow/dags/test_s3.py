@@ -32,7 +32,7 @@ def list_s3_objects():
         print(f"{S3_BUCKET_NAME}/{today} 폴더가 비어있거나 접근 가능한 파일이 없습니다.")
 
 default_args= {
-    'on_failure_callback': slack.on_failure_callback
+    'on_failure_callback': on_failure_callback
 }
 
 with DAG(
