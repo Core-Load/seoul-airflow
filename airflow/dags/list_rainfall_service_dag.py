@@ -3,21 +3,17 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator, ShortCircuitOperator
 from airflow.models import Variable
-import pendulum
 from seoul_utils import SeoulAPI
 from s3_utils import S3Manager
 from db_utils import PostgreSqlManager
 from slack import on_failure_callback
+from common_utils import skip_at_kst_21
 
 AWS_CONN_ID = "conn_aws"
 POSTGRES_CONN_ID = "conn_postgres"
 S3_BUCKET_NAME = Variable.get("s3_bucket_name")
 SCHEMA_NAME = "raw_data"
 TABLE_NAME = f"{SCHEMA_NAME}.list_rainfall_service"
-
-def skip_at_21(**context):
-    now = pendulum.now("Asia/Seoul")
-    return now.hour != 21
 
 def fetch_yesterday_air_quality():
     api = SeoulAPI()
@@ -122,7 +118,7 @@ with DAG(
     # 서버 중지 시간 체크
     check_time = ShortCircuitOperator(
         task_id="check_not_21",
-        python_callable=skip_at_21
+        python_callable=skip_at_kst_21
     )
 
     # API 호출
