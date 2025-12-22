@@ -60,8 +60,8 @@ def create_table_if_not_exists(**context):
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (RF_CD, DATA_CLCT_TM)
         );
-        CREATE INDEX IF NOT EXISTS idx_lrs_rf_cd_updated_at
-        ON {TABLE_NAME} (RF_CD, updated_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_lrs_gu_cd_clct_tm
+        ON {TABLE_NAME} (GU_CD, DATA_CLCT_TM DESC, RN_10M DESC);
     """
     db.create_table(create_query)
     print(f"테이블 생성 완료: {TABLE_NAME}")

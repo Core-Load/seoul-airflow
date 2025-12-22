@@ -62,7 +62,8 @@ def create_table_if_not_exists(**context):
             FPM NUMERIC(10, 2),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (MSRMT_DT, MSRSTN_NM)
+            PRIMARY KEY (MSRMT_DT, MSRSTN_NM);
+            CREATE INDEX IF NOT EXISTS idx_daq_msrmt_dt ON {TABLE_NAME} (MSRMT_DT);
         )
     """
     db.create_table(create_query)
