@@ -27,7 +27,6 @@ with DAG(
     dag_id = "dbt_run_market",
     start_date = datetime(2025,12,19),
     schedule_interval = "*/30 * * * *",
-    schedule_interval = None,
     catchup=False,
     tags=["dbt", "market", "seoul_city_data"],
     # on_failure_callback=on_failure_callback,
