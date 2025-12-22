@@ -26,10 +26,10 @@ with DAG(
     schedule_interval = None,
     catchup=False,
     tags=["dbt", "market", "seoul_city_data"],
-    on_failure_callback=on_failure_callback,
-    default_args={
-        "on_failure_callback": on_failure_callback
-    }
+    # on_failure_callback=on_failure_callback,
+    # default_args={
+    #     "on_failure_callback": on_failure_callback
+    # }
 ) as dag:
     
     db_conn = PythonOperator(

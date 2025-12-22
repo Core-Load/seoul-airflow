@@ -12,6 +12,7 @@ SELECT
     (data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_60_RATE')::float AS age_60_rate,    -- 60대 결제 비중
     (data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_PERSONAL_RATE')::float AS personal_rate,    -- 개인 결제 비중
     (data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_CORPORATION_RATE') AS corporation_rate,    -- 법인 결제 비중
-    (data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_TIME', 'YYYYMMDD HH24MI') AS commerce_time,    -- 결제 시간
+    -- (data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_TIME', 'YYYYMMDD HH24MI') AS commerce_time,    -- 결제 시간
+    TO_TIMESTAMP(data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_TIME', 'YYYYMMDD HH24MI') AS commerce_time,
     created_at AS loaded_at     -- stg_market_store와 join에 사용할 수 있는
 FROM raw_data.realtime_city_data
