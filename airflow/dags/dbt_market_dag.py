@@ -29,10 +29,10 @@ with DAG(
     schedule_interval = "*/30 * * * *",
     catchup=False,
     tags=["dbt", "market", "seoul_city_data"],
-    # on_failure_callback=on_failure_callback,
-    # default_args={
-    #     "on_failure_callback": on_failure_callback
-    # }
+    on_failure_callback=on_failure_callback,
+    default_args={
+        "on_failure_callback": on_failure_callback
+    }
 ) as dag:
     db_conn = PythonOperator(
         task_id = "db_connection",
@@ -62,8 +62,7 @@ with DAG(
         image="dbt-runner:latest",
         api_version="auto",
         auto_remove="success",
-        # command="run --select +stg_market_ppl +stg_market_store  --project-dir /usr/app",
-        command="run --select +fact_market_ppl --project-dir /usr/app",
+        command="run --select +fact_market_ppl +fact_market_store --project-dir /usr/app",
         docker_url="unix:///var/run/docker.sock",
         tls_hostname=False,
         tls_verify=False,
