@@ -14,5 +14,5 @@ sources:
         description: "서울시 일별 평균 대기오염도 정보"
       - name: list_rainfall_service
         description: "서울시 강우량 정보"
-      - name: 3Q_market_info  # 테이블명
+      - name: 3Q_market_info
         description: "서울시 상권 3분기 분석 데이터"

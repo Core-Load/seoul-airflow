@@ -4,9 +4,9 @@
     {% if node.path.startswith('staging') %}
         {{ return('raw_data') }}
 
-    {# raw_data.int_ #}
+    {# intermediate.int_ #}
     {% elif node.path.startswith('intermediate') %}
-        {{ return('raw_data') }}
+        {{ return('intermediate') }}
 
     {# analytics.dim_ & analytics.fact_ #}
     {% elif node.path.startswith('marts') %}
