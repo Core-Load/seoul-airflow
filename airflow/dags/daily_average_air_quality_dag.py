@@ -1,5 +1,4 @@
 from __future__ import annotations
-import json
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator

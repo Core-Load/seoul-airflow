@@ -1,10 +1,8 @@
 from __future__ import annotations
-import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator, ShortCircuitOperator
 from airflow.models import Variable
-from airflow.utils import timezone
 import pendulum
 from seoul_utils import SeoulAPI
 from s3_utils import S3Manager
