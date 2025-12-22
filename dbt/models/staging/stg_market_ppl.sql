@@ -14,4 +14,4 @@ SELECT
     (data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_CORPORATION_RATE') AS corporation_rate,    -- 법인 결제 비중
     (data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' ->> 'CMRCL_TIME', 'YYYYMMDD HH24MI') AS commerce_time,    -- 결제 시간
     created_at AS loaded_at     -- stg_market_store와 join에 사용할 수 있는
-FROM raw_data.realtime_city_data;
+FROM raw_data.realtime_city_data
