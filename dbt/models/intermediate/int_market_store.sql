@@ -12,7 +12,7 @@ SELECT
     payment_count,
     payment_min,
     payment_max,
-    merchant_count
+    merchant_count,
     loaded_at
 
 FROM staging_market_store
