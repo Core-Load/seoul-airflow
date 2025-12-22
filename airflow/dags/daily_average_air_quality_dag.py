@@ -102,7 +102,7 @@ with DAG(
 ) as dag:
     # 서버 중지 시간 체크
     check_time = ShortCircuitOperator(
-        task_id="check_not_21",
+        task_id="check_time",
         python_callable=skip_at_kst_21
     )
 
