@@ -1,7 +1,6 @@
-import json
 import requests
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Union
 from airflow.models import Variable
 from zoneinfo import ZoneInfo

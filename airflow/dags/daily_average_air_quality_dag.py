@@ -1,13 +1,13 @@
 from __future__ import annotations
-import json
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator, ShortCircuitOperator
 from airflow.models import Variable
 from seoul_utils import SeoulAPI
 from s3_utils import S3Manager
 from db_utils import PostgreSqlManager
 from slack import on_failure_callback
+from common_utils import skip_at_kst_21
 
 AWS_CONN_ID = "conn_aws"
 POSTGRES_CONN_ID = "conn_postgres"
@@ -100,30 +100,35 @@ with DAG(
         "on_failure_callback": on_failure_callback
     }
 ) as dag:
+    # 서버 중지 시간 체크
+    check_time = ShortCircuitOperator(
+        task_id="check_not_21",
+        python_callable=skip_at_kst_21
+    )
 
-    # 1. API 호출
+    # API 호출
     req_api = PythonOperator(
         task_id="req_api",
         python_callable=fetch_yesterday_air_quality
     )
 
-    # 2. S3 저장
+    # S3 저장
     save_file = PythonOperator(
         task_id="save_file",
         python_callable=save_data_to_s3
     )
     
-    # 3. 스키마 및 테이블 생성 (없는 경우)
+    # 스키마 및 테이블 생성 (없는 경우)
     create_table = PythonOperator(
         task_id="create_table",
         python_callable=create_table_if_not_exists
     )
     
-    # 4. PostgreSQL에 데이터 INSERT
+    # PostgreSQL에 데이터 INSERT
     insert_to_db = PythonOperator(
         task_id="insert_to_db",
         python_callable=insert_data_to_postgres
     )
 
     # Task 의존성 설정
-    req_api >> save_file >> create_table >> insert_to_db
+    check_time >> req_api >> save_file >> create_table >> insert_to_db

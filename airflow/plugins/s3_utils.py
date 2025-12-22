@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import List, Optional
+from typing import List
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 logger = logging.getLogger(__name__)
