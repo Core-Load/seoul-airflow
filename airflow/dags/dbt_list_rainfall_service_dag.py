@@ -1,11 +1,13 @@
 from airflow import DAG
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.docker.operators.docker import DockerOperator
+from airflow.operators.python import ShortCircuitOperator
 from docker.types import Mount
 from datetime import datetime
 import os
 from slack import on_failure_callback
 from db_utils import PostgreSqlManager
+from common_utils import skip_at_kst_21
 
 POSTGRES_CONN_ID = "conn_postgres"
 pg_manager = PostgreSqlManager(conn_id=POSTGRES_CONN_ID)
@@ -25,14 +27,17 @@ with DAG(
         "on_failure_callback": on_failure_callback
     }
 ) as dag:
+    # 서버 중지 시간 체크
+    check_time = ShortCircuitOperator(
+        task_id="check_time",
+        python_callable=skip_at_kst_21
+    )
+
     # postgres 적재가 끝날 때까지 기다림
     wait_for_ingest = ExternalTaskSensor(
         task_id="wait_for_ingest",
         external_dag_id="list_rainfall_service_dag",
-        external_task_ids=[
-            "check_time",
-            "insert_to_db",
-        ],
+        external_task_ids=["insert_to_db"],
         allowed_states=["success"],
         failed_states=["failed", "skipped"],
         mode="reschedule",  # worker 점유 방지
@@ -91,4 +96,4 @@ with DAG(
         }
     )
 
-    wait_for_ingest >> stg_dbt_run >> int_dbt_run
+    check_time >> wait_for_ingest >> stg_dbt_run >> int_dbt_run
