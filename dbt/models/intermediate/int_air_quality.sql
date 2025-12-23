@@ -1,14 +1,21 @@
-WITH base AS (
-    SELECT
-        msrmt_date,
-        msrstn_nm,
-        no2_ppm,
-        ozone_ppm,
-        co_ppm,
-        so2_ppm,
-        pm10,
-        pm25
+WITH recent_dates AS (
+    SELECT DISTINCT msrmt_date
     FROM {{ ref('stg_daily_air_quality') }}
+    ORDER BY msrmt_date DESC
+    LIMIT 2
+),
+base AS (
+    SELECT
+        s.msrmt_date,
+        s.msrstn_nm,
+        s.no2_ppm,
+        s.ozone_ppm,
+        s.co_ppm,
+        s.so2_ppm,
+        s.pm10,
+        s.pm25
+    FROM {{ ref('stg_daily_air_quality') }} s
+    INNER JOIN recent_dates r ON s.msrmt_date = r.msrmt_date
 ),
 with_prev AS (
     SELECT
