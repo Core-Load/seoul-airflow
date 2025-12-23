@@ -22,7 +22,7 @@ def check_db_connection():
 with DAG(
     dag_id="dbt_run_traffic",
     start_date=datetime(2025, 1, 1),
-    schedule_interval=None,
+    schedule_interval="*/30 * * * *",
     catchup=False,
     tags=["dbt", "traffic"]
 ) as dag:
