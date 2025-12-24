@@ -35,17 +35,17 @@ with_prev AS (
     FROM base
 )
 SELECT
-    msrmt_date,
-    msrstn_nm,
-    no2_ppm,
-    ozone_ppm,
-    co_ppm,
-    so2_ppm,
-    pm10,
-    pm25,
-    prev_measure_date,
-    prev_pm10,
-    prev_pm25,
-    pm10 - prev_pm10  AS pm10_diff,
-    pm25 - prev_pm25  AS pm25_diff
+    msrmt_date,     -- 측정일(date)
+    msrstn_nm,      -- 측정소명
+    no2_ppm,        -- 이산화질소농도(ppm)
+    ozone_ppm,      -- 오존농도(ppm)
+    co_ppm,         -- 일산화탄소농도(ppm)
+    so2_ppm,        -- 아황산가스(ppm)
+    pm10,           -- 미세먼지(㎍/㎥)
+    pm25,           -- 초미세먼지(㎍/㎥)
+    prev_measure_date,  -- 비교 기준일
+    prev_pm10,          -- 기준일 미세먼지(㎍/㎥)
+    prev_pm25,          -- 기준일 초미세먼지(㎍/㎥)
+    pm10 - prev_pm10  AS pm10_diff, -- 기준일 대비 미세먼지 증감량
+    pm25 - prev_pm25  AS pm25_diff  -- 기준일 대비 초미세먼지 증감량
 FROM with_prev

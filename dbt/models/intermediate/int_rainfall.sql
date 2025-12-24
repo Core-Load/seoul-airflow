@@ -6,12 +6,12 @@
     )
 }}
 SELECT DISTINCT ON (gu_cd)
-    rf_cd,
-    rf_nm,
-    gu_cd,
-    gu_nm,
-    rn_10m,
-    data_clct_tm,
+    rf_cd,          -- 강우량계 코드
+    rf_nm,          -- 강우량계명
+    gu_cd,          -- 구청 코드
+    gu_nm,          -- 구청명
+    rn_10m,         -- 10분우량
+    data_clct_tm,   -- 자료수집 시각
     updated_at
 FROM {{ ref('stg_list_rainfall_service') }}
 {% if is_incremental() %}
