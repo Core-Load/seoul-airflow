@@ -21,7 +21,7 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule_interval="0 10 * * *",   # daily_average_air_quality_dag 와 동일
     catchup=False,
-    tags=["seoul", "weather", "dbt"],
+    tags=["weather", "dbt"],
     on_failure_callback=on_failure_callback,
     default_args={
         "on_failure_callback": on_failure_callback

@@ -95,7 +95,7 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule_interval="0 10 * * *",     # 매일 오전 10시에 실행
     catchup=False,
-    tags=["seoul", "weather"],
+    tags=["seoul", "weather", "s3", "postgres"],
     on_failure_callback=on_failure_callback,
     default_args={
         "on_failure_callback": on_failure_callback
