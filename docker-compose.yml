@@ -50,7 +50,8 @@ services:
   # Airflow init
   airflow-init:
     build: ./airflow
-    user: "0:0"  # root로 실행
+    # user: "50000:0"     # Mac
+    user: "50000:992"   # EC2
     entrypoint: >
       bash -c "
         echo 'Creating directories...' &&

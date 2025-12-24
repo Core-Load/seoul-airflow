@@ -39,14 +39,21 @@ jobs:
           sudo chown -R ec2-user:ec2-user . || true
           sudo chmod -R 755 . || true
 
+      # 소스 체크아웃
       - name: Checkout source
         uses: actions/checkout@v4
+
+      # 배포 정보 출력
+      - name: Show deployment info
+        run: |
+          echo "Deploying on self-hosted runner (EC2)"
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Repo:   ${{ github.repository }}"
 
       # 체크아웃된 코드를 실제 서비스 디렉토리로 동기화
       - name: Sync code to service directory
         run: |
-          echo "Syncing code from GitHub Actions workspace to service directory..."
-          
           # 대상 디렉토리가 없으면 생성
           sudo mkdir -p /home/ec2-user/seoul-airflow
           
@@ -70,26 +77,14 @@ jobs:
           
           # 소유권 설정
           sudo chown -R ec2-user:ec2-user /home/ec2-user/seoul-airflow
-          
-          echo "Code sync completed"
 
-      - name: Show deployment info
-        run: |
-          echo "Deploying on self-hosted runner (EC2)"
-          echo "Event: ${{ github.event_name }}"
-          echo "Branch: ${{ github.ref }}"
-          echo "Repo:   ${{ github.repository }}"
-          echo "Service directory: /home/ec2-user/seoul-airflow"
-
+      # 폴더 권한 정리
       - name: Ensure Directory Permissions for Airflow
         run: |
-          echo "Setting up Airflow directories on host..."
           cd /home/ec2-user/seoul-airflow
           mkdir -p airflow/logs airflow/dags airflow/plugins || true
-          # 호스트 디렉토리의 소유권을 ec2-user로 설정
+
           sudo chown -R 50000:992 airflow/logs airflow/dags airflow/plugins || true
-          # 그룹에 쓰기 권한 부여 (775)
-          # 컨테이너 내부의 Airflow 유저가 호스트 디렉토리에 쓸 수 있도록 보장
           sudo chmod -R 775 airflow/logs airflow/dags airflow/plugins || true
 
       # Docker compose local build & run
@@ -97,22 +92,10 @@ jobs:
         run: |
           cd /home/ec2-user/seoul-airflow
           
-          echo "Stopping previous containers..."
           docker compose down || true
-
-          echo "Running local build..."
           docker compose build
-
-          echo "Starting new containers..."
           docker compose up -d
 
+      # Docker 이미지 정리
       - name: Cleanup unused images
         run: docker image prune -af || true
-      
-      # 다음 실행을 위한 권한 정리
-      - name: Fix log permissions
-        run: |
-          cd /home/ec2-user/seoul-airflow
-          DOCKER_GID=$(getent group docker | cut -d: -f3)
-          sudo chown -R 50000:$DOCKER_GID airflow/logs || true
-          sudo chmod -R 775 airflow/logs || true
