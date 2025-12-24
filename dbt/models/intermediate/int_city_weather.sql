@@ -1,22 +1,24 @@
-with recent as (
-    select *
-    from {{ ref('stg_realtime_city_weather') }}
-    where
-        WEATHER_TIME is not null
-        and created_at >= now() - interval '1 hour'
-),
-ranked as (
-    select
+{{ config(
+    materialized='incremental',
+    unique_key='area_name',
+    incremental_strategy='delete+insert'
+) }}
+WITH ranked AS (
+    SELECT
         *,
-        row_number() over (
-            partition by area_name
-            order by
-                weather_time desc,
-                created_at desc
-        ) as rn
-    from recent
+        ROW_NUMBER() OVER (
+            PARTITION BY area_name
+            ORDER BY WEATHER_TIME DESC, created_at DESC
+        ) AS rn
+    FROM {{ ref('stg_realtime_city_weather') }}
+    WHERE WEATHER_TIME IS NOT NULL
+    
+    {% if is_incremental() %}
+    -- 기존 테이블에 있는 최신 데이터 이후의 것만 가져와서 처리 성능 향상
+    AND created_at > (SELECT MAX(created_at) FROM {{ this }})
+    {% endif %}
 )
-select
+SELECT
     area_name,
     created_at,
     WEATHER_TIME,   -- 날씨 데이터 업데이트 시간
@@ -31,7 +33,7 @@ select
     NULLIF(
         regexp_replace(PRECIPITATION, '[^0-9\.]', '', 'g'),
         ''
-    )::numeric as PRECIPITATION_MM, -- 강수량(mm 제외 숫자)
+    )::numeric AS PRECIPITATION_MM, -- 강수량(mm 제외 숫자)
     PRECPT_TYPE,    -- 강수형태
     UV_INDEX_LVL,   -- 자외선지수 단계
     UV_INDEX,       -- 자외선지수
@@ -41,5 +43,5 @@ select
     PM10,           -- 미세먼지농도
     AIR_IDX,        -- 통합대기환경등급
     AIR_IDX_MVL     -- 통합대기환경지수
-from ranked
-where rn = 1
+FROM ranked
+WHERE rn = 1

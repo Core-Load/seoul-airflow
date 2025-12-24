@@ -8,3 +8,5 @@ SELECT
     created_at,
     updated_at
 FROM {{ source('raw_data', 'list_rainfall_service') }}
+WHERE data_clct_tm IS NOT NULL
+    AND rf_cd IS NOT NULL
