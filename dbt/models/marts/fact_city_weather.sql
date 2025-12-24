@@ -1,3 +1,8 @@
+{{ config(
+    materialized='incremental',
+    unique_key='area_name',
+    incremental_strategy='delete+insert'
+) }}
 select
     area_name,
     WEATHER_TIME,       -- 날씨 데이터 업데이트 시간
@@ -21,3 +26,6 @@ select
     AIR_IDX_MVL,        -- 통합대기환경지수
     CURRENT_TIMESTAMP as snapshot_at
 from {{ ref('int_city_weather') }}
+{% if is_incremental() %}
+WHERE WEATHER_TIME > (SELECT MAX(WEATHER_TIME) FROM {{ this }})
+{% endif %}
