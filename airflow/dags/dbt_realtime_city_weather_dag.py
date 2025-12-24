@@ -1,5 +1,4 @@
 from airflow import DAG
-from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.operators.python import ShortCircuitOperator
 from docker.types import Mount
