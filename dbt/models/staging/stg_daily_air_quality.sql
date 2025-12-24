@@ -9,3 +9,5 @@ SELECT
     pm   AS pm10,        -- 미세먼지
     fpm  AS pm25         -- 초미세먼지
 FROM {{ source('raw_data', 'daily_average_air_quality') }}
+WHERE msrmt_dt IS NOT NULL
+    AND msrstn_nm IS NOT NULL
