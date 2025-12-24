@@ -20,7 +20,7 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule_interval="15,45 * * * *",   # 매 시각 15분, 45분
     catchup=False,
-    tags=["seoul", "weather", "dbt"],
+    tags=["weather", "dbt"],
     on_failure_callback=on_failure_callback,
     default_args={
         "on_failure_callback": on_failure_callback
