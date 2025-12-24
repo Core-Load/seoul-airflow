@@ -1,13 +1,13 @@
 create table if not exists analytics.dim_wind_dirct (
-    wind_dir    varchar(3)  primary key,
-    wind_dir_kr varchar(10),
+    wind_dirct    varchar(3)  primary key,
+    wind_dirct_kr varchar(10),
     wind_degree numeric(5,1),
     sort_order  smallint
 );
 
 insert into analytics.dim_wind_dirct (
-    wind_dir,
-    wind_dir_kr,
+    wind_dirct,
+    wind_dirct_kr,
     wind_degree,
     sort_order
 )
