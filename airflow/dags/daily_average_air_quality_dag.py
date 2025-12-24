@@ -25,7 +25,7 @@ def save_data_to_s3(**context):
     ti = context["ti"]
     data = ti.xcom_pull(task_ids="req_api")
 
-    # S3 키 생성 (실시간 데이터이므로 target_date는 None)
+    # S3 키 생성
     api_name = "서울시_일별_평균_대기오염도_정보"
     folder_name = "weather"
     target_date = TARGET_DATE + "0000"
