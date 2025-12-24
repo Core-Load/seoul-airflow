@@ -8,8 +8,6 @@ sources:
     tables:
       - name: realtime_city_data
         description: "서울시 실시간 도시데이터"
-      - name: realtime_city_air
-        description: "서울시 권역별 실시간 대기환경 현황"
       - name: daily_average_air_quality
         description: "서울시 일별 평균 대기오염도 정보"
       - name: list_rainfall_service
