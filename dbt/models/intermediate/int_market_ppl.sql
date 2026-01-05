@@ -1,8 +1,4 @@
-WITH staging_market_ppl AS (
-    -- 이전에 만든 stg_market_3q_info 모델을 불러옵니다.
-    -- 파일명(모델명)을 따옴표 안에 적어주면 됩니다.
-    SELECT * FROM {{ ref('stg_market_ppl') }}
-)
+{{config(materialized='ephemeral')}}
 
 SELECT
     area_name,
@@ -20,4 +16,4 @@ SELECT
     commerce_time,
     loaded_at
 
-FROM staging_market_ppl
+FROM {{ref('stg_market_ppl')}}
