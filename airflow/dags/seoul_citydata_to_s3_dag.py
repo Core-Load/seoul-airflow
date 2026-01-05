@@ -42,12 +42,12 @@ default_args = {
 }
 
 # =============================
-# 1️⃣ API 호출 → S3 업로드
+# API 호출 → S3 업로드
 # =============================
 def fetch_and_upload(**context):
     api_key = Variable.get("seoul_api_key", default_var=None)
     if not api_key:
-        raise AirflowFailException("❌ Airflow Variable 'seoul_api_key'가 없습니다")
+        raise AirflowFailException("Airflow Variable 'seoul_api_key'가 없습니다")
 
     bucket = Variable.get("s3_bucket_name")
     s3_hook = S3Hook(aws_conn_id="conn_aws")
@@ -89,7 +89,7 @@ def fetch_and_upload(**context):
             date_part = execution_time.strftime("%Y-%m-%d")
             time_part = execution_time.strftime("%Y%m%d%H%M")
 
-            # ✅ 네가 원하는 key 형식 그대로 사용
+            # 네가 원하는 key 형식 그대로 사용
             key = (
                 f"{date_part}/city_data/"
                 f"{time_part}-서울시_실시간_도시데이터-{area}.json"
@@ -107,23 +107,23 @@ def fetch_and_upload(**context):
         except Exception as e:
             failed.append({"area": area, "reason": str(e)})
 
-    print("✅ SUCCESS AREAS:", success)
-    print("❌ FAILED AREAS:", failed)
+    print("SUCCESS AREAS:", success)
+    print("FAILED AREAS:", failed)
 
     if failed:
-        raise AirflowFailException(f"❌ 일부 지역 수집 실패: {failed}")
+        raise AirflowFailException(f"일부 지역 수집 실패: {failed}")
 
     return {"success": success}
 
 # =============================
-# 2️⃣ PostgreSQL 테이블 생성
+# PostgreSQL 테이블 생성
 # =============================
 def create_table_if_not_exists():
     hook = PostgresHook(postgres_conn_id="conn_postgres")
     conn = hook.get_conn()
     cur = conn.cursor()
 
-    print(f"📌 테이블 생성 시도: {TABLE_NAME}")
+    print(f"테이블 생성 시도: {TABLE_NAME}")
 
     create_query = load_sql(
         filename="create_realtime_city_data.sql",
@@ -139,7 +139,7 @@ def create_table_if_not_exists():
 
 
 # =============================
-# 3️⃣ S3 → PostgreSQL 적재
+# S3 → PostgreSQL 적재
 # =============================
 def insert_s3_data_to_postgres(**context):
     ti = context["ti"]
