@@ -118,35 +118,24 @@ def fetch_and_upload(**context):
 # 2️⃣ PostgreSQL 테이블 생성
 # =============================
 def create_table_if_not_exists():
-    try:
-        print("🚀 create_table_if_not_exists 시작")
+    hook = PostgresHook(postgres_conn_id="conn_postgres")
+    conn = hook.get_conn()
+    cur = conn.cursor()
 
-        hook = PostgresHook(postgres_conn_id="conn_postgres")
-        conn = hook.get_conn()
-        cur = conn.cursor()
+    print(f"📌 테이블 생성 시도: {TABLE_NAME}")
 
-        print(f"📌 스키마 생성 시도: {SCHEMA_NAME}")
-        cur.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME};")
+    create_query = load_sql(
+        filename="create_realtime_city_data.sql",
+        dag_file=__file__,
+        TABLE_NAME=TABLE_NAME
+    )
 
-        print(f"📌 테이블 생성 시도: {TABLE_NAME}")
-        cur.execute(f"""
-            CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-                area_name VARCHAR(50),
-                data JSONB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        """)
+    cur.execute(create_query)
+    conn.commit()
 
-        conn.commit()
-        print("✅ 테이블 생성 완료")
+    cur.close()
+    conn.close()
 
-        cur.close()
-        conn.close()
-
-    except Exception as e:
-        print("❌ create_table_if_not_exists 에러 발생")
-        print(str(e))
-        raise
 
 # =============================
 # 3️⃣ S3 → PostgreSQL 적재
