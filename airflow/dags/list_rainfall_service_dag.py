@@ -7,13 +7,13 @@ from seoul_utils import SeoulAPI
 from s3_utils import S3Manager
 from db_utils import PostgreSqlManager
 from slack import on_failure_callback
-from common_utils import skip_at_kst_21
+from common_utils import skip_at_kst_21, load_sql
 
 AWS_CONN_ID = "conn_aws"
 POSTGRES_CONN_ID = "conn_postgres"
 S3_BUCKET_NAME = Variable.get("s3_bucket_name")
 SCHEMA_NAME = "raw_data"
-TABLE_NAME = f"{SCHEMA_NAME}.list_rainfall_service"
+TABLE_NAME = "list_rainfall_service"
 
 def fetch_yesterday_air_quality():
     api = SeoulAPI()
@@ -42,27 +42,17 @@ def create_table_if_not_exists(**context):
     db = PostgreSqlManager(conn_id=POSTGRES_CONN_ID)
     db.create_schema_if_not_exists(SCHEMA_NAME)
 
-    table_name_only = TABLE_NAME.split('.')[-1]
-    if db.table_exists(table_name_only, schema=SCHEMA_NAME):
-        print(f"테이블이 이미 존재합니다: {TABLE_NAME}")
+    if db.table_exists(TABLE_NAME, schema=SCHEMA_NAME):
+        print(f"테이블이 이미 존재합니다: {SCHEMA_NAME}.{TABLE_NAME}")
         return
     
     # 테이블 생성 쿼리
-    create_query = f"""
-        CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-            RF_CD INTEGER,
-            RF_NM VARCHAR(50),
-            GU_CD INTEGER,
-            GU_NM VARCHAR(20),
-            RN_10M NUMERIC(6, 2),
-            DATA_CLCT_TM TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (RF_CD, DATA_CLCT_TM)
-        );
-        CREATE INDEX IF NOT EXISTS idx_lrs_gu_cd_clct_tm
-        ON {TABLE_NAME} (GU_CD, DATA_CLCT_TM DESC, RN_10M DESC);
-    """
+    create_query = load_sql(
+        filename="create_list_rainfall_service.sql",
+        dag_file=__file__,
+        SCHEMA_NAME=SCHEMA_NAME,
+        TABLE_NAME=TABLE_NAME
+    )
     db.create_table(create_query)
     print(f"테이블 생성 완료: {TABLE_NAME}")
 
@@ -94,7 +84,7 @@ def insert_data_to_postgres(**context):
     
     # JSON 데이터 INSERT
     inserted_count = db.insert_from_json(
-        table_name=TABLE_NAME,
+        table_name=f"{SCHEMA_NAME}.{TABLE_NAME}",
         json_data=data,
         json_path=["ListRainfallService", "row"],  # JSON 내 데이터 경로
         filter_func=filter_valid_data,
