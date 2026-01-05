@@ -1,8 +1,4 @@
-WITH staging_market_quarter_data AS (
-    -- 이전에 만든 stg_market_3q_info 모델을 불러옵니다.
-    -- 파일명(모델명)을 따옴표 안에 적어주면 됩니다.
-    SELECT * FROM {{ ref('stg_market_3q_info') }}
-)
+{{config(materialized='ephemeral')}}
 
 SELECT 
     stdr_yyqu_cd,
@@ -64,4 +60,4 @@ SELECT
     agrde_50_selng_co,
     agrde_60_above_selng_co
 
-FROM staging_market_quarter_data
+FROM {{ref('stg_market_3q_info')}}

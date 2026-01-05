@@ -1,6 +1,26 @@
 # seoul-airflow
 DE7 최종 팀 프로젝트
 
+## 폴더 구조
+    .
+    ├── airflow/                # Airflow 관련
+    │   ├── dags/
+    │   │   └── sql/
+    │   └── plugins/
+    │
+    ├── dbt/                    # dbt 관련
+    │   ├── macros/
+    │   └── models/
+    │       ├── staging/
+    │       ├── intermediate/
+    │       └── marts/
+    │
+    ├── scripts/                # 일회성 스크립트
+    │
+    ├── docker-compose.yml
+    ├── sample.env
+    └── README.md
+
 ## 실행 방법
 ### 1. 환경 변수 설정 파일 .env 생성 (수동 작업)
 - (local) sample.env 파일 참고하여 같은 위치에 .env 파일 생성

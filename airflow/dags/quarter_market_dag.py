@@ -8,6 +8,8 @@ import logging
 import psycopg2
 from psycopg2.extras import execute_values
 from datetime import datetime, date, timedelta
+
+from common_utils import load_sql
 from s3_utils import S3Manager
 from db_utils  import PostgreSqlManager
 import boto3
@@ -15,8 +17,6 @@ import boto3
 AWS_CONN_ID = "conn_aws"
 POSTGRES_CONN_ID = "conn_postgres"
 S3_BUCKET_NAME = Variable.get("s3_bucket_name")
-SCHEMA_NAME = "raw_data"
-TABLE_NAME = "3Q_market_info"
 API_KEY = Variable.get("seoul_api_key")
 
 @task
@@ -67,49 +67,46 @@ def create_insert_in_postgres(all_data):
     conn = db.hook.get_conn()
     curr = conn.cursor()
     
-    db.create_schema_if_not_exists(SCHEMA_NAME)             # 스키마 생성
-
     columns = list(all_data[0].keys())
     quoted_columns = [f'"{col}"' for col in columns]
     column_names_str = ", ".join(quoted_columns)
+    create_columns_with_types = ", ".join([f'{col} TEXT' for col in quoted_columns])
     
     try:
-        create_columns_with_types = ", ".join([f'{col} TEXT' for col in quoted_columns])
-        create_query = f"""
-            CREATE TABLE IF NOT EXISTS "{SCHEMA_NAME}"."{TABLE_NAME}" (
-                {create_columns_with_types}
-            );
-        """
+        setup_query = load_sql(
+            "create_market_quarter_info.sql",
+            __file__,
+            create_columns_with_types=create_columns_with_types
+        )
+        
         curr.execute("BEGIN;")
-        curr.execute(create_query) 
-        logging.info(f"테이블 확인, 테이블 생성 완료")
+        curr.execute(setup_query) 
+        logging.info(f"테이블 확인, 테이블 생성 완료, Truncate 완료")
         
-        curr.execute(f'TRUNCATE TABLE "{SCHEMA_NAME}"."{TABLE_NAME}";')
-        logging.info(f"테이블 내부 기존 데이터 삭제 (Truncated)")
-        
-        # insert
-        sql_template= f"""
-            INSERT INTO "{SCHEMA_NAME}"."{TABLE_NAME}" ({column_names_str})
-            VALUES %s
-        """
+        insert_template = load_sql(
+            "insert_market_quarter_info.sql",
+            __file__,
+            column_names_str=column_names_str
+        )
         
         data_to_insert=[
             tuple(record.get(col) for col in columns)
             for record in all_data
         ]
         
-        execute_values(curr, sql_template, data_to_insert)
+        execute_values(curr, insert_template, data_to_insert)
+        
         curr.execute("COMMIT;")
         logging.info(f"{len(all_data)}건의 데이터 저장 완료")
         
     except Exception as e:
-        # curr.execute("ROLLBACK;")
         conn.rollback()
         logging.error(f"오류로 인해 롤백 수행: {e}")
         raise e
     finally:
         curr.close()
         conn.close()
+
 @task
 def s3_to_postgres(s3_key):
     s3_client = boto3.client('s3')
