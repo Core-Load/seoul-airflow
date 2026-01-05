@@ -10,4 +10,4 @@ SELECT
     payment_max,
     merchant_count,
     loaded_at
-FROM {{ref('staging_market_store')}}
+FROM {{ref('stg_market_ppl')}}

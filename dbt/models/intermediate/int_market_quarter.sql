@@ -60,4 +60,4 @@ SELECT
     agrde_50_selng_co,
     agrde_60_above_selng_co
 
-FROM {{ref('staging_market_quarter_data')}}
+FROM {{ref('stg_market_3q_info')}}
