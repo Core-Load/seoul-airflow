@@ -4,6 +4,7 @@ from airflow.models import Variable
 from airflow.exceptions import AirflowFailException
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+from common_utils import skip_at_kst_21, load_sql
 from datetime import datetime, timedelta
 from urllib.parse import quote
 import requests
