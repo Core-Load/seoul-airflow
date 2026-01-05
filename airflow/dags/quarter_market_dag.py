@@ -73,12 +73,6 @@ def create_insert_in_postgres(all_data):
     create_columns_with_types = ", ".join([f'{col} TEXT' for col in quoted_columns])
     
     try:
-        # create_columns_with_types = ", ".join([f'{col} TEXT' for col in quoted_columns])
-        # create_query = f"""
-        #     CREATE TABLE IF NOT EXISTS "raw_data"."3Q_market_info" (
-        #         {create_columns_with_types}
-        #     );
-        # """
         setup_query = load_sql(
             "market_info_setup.sql",
             __file__,
@@ -88,9 +82,6 @@ def create_insert_in_postgres(all_data):
         curr.execute("BEGIN;")
         curr.execute(setup_query) 
         logging.info(f"테이블 확인, 테이블 생성 완료, Truncate 완료")
-        
-        # curr.execute(f'TRUNCATE TABLE "raw_data"."3Q_market_info";')
-        # logging.info(f"테이블 내부 기존 데이터 삭제 (Truncated)")
         
         # insert
         sql_template= f"""
