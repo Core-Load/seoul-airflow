@@ -74,7 +74,7 @@ def create_insert_in_postgres(all_data):
     
     try:
         setup_query = load_sql(
-            "market_info_setup.sql",
+            "create_market_quarter_info.sql",
             __file__,
             create_columns_with_types=create_columns_with_types
         )
@@ -84,7 +84,7 @@ def create_insert_in_postgres(all_data):
         logging.info(f"테이블 확인, 테이블 생성 완료, Truncate 완료")
         
         insert_template = load_sql(
-            "market_info_insert.sql",
+            "insert_market_quarter_info.sql",
             __file__,
             column_names_str=column_names_str
         )
