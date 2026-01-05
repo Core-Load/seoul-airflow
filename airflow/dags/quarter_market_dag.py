@@ -83,18 +83,19 @@ def create_insert_in_postgres(all_data):
         curr.execute(setup_query) 
         logging.info(f"테이블 확인, 테이블 생성 완료, Truncate 완료")
         
-        # insert
-        sql_template= f"""
-            INSERT INTO "raw_data"."3Q_market_info" ({column_names_str})
-            VALUES %s
-        """
+        insert_template = load_sql(
+            "market_info_insert.sql",
+            __file__,
+            column_names_str=column_names_str
+        )
         
         data_to_insert=[
             tuple(record.get(col) for col in columns)
             for record in all_data
         ]
         
-        execute_values(curr, sql_template, data_to_insert)
+        execute_values(curr, insert_template, data_to_insert)
+        
         curr.execute("COMMIT;")
         logging.info(f"{len(all_data)}건의 데이터 저장 완료")
         
