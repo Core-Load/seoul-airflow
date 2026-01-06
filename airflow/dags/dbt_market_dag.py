@@ -56,7 +56,6 @@ with DAG(
         check_existence=True,
     )
     
-    # 2. dbt 실행 테스트 (파일명에 sample이 포함된 모든 모델 실행)
     dbt_run = DockerOperator(
         task_id="dbt_run",
         image="dbt-runner:latest",
@@ -67,7 +66,7 @@ with DAG(
         tls_hostname=False,
         tls_verify=False,
         network_mode="bridge",
-        mount_tmp_dir=False,  # 임시 디렉토리 마운트 비활성화
+        mount_tmp_dir=False,
         mounts=[
             Mount(
                 source=os.getenv("DBT_PROJECT_PATH"),
@@ -81,5 +80,4 @@ with DAG(
         }
     )
 
-    # 순서 보장: 연결 테스트 성공 후 dbt 실행
     check_time >> db_conn >> wait_for_ingest >> dbt_run

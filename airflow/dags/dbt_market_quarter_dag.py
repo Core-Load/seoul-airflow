@@ -33,19 +33,17 @@ with DAG(
         python_callable=check_db_connection
     )
     
-    # 2. dbt 실행 테스트 (파일명에 sample이 포함된 모든 모델 실행)
     dbt_run = DockerOperator(
         task_id="dbt_run",
         image="dbt-runner:latest",
         api_version="auto",
         auto_remove="success",
-        # command="run --select stg_market_3q_info --project-dir /usr/app",
         command="run --select +dim_market_quarter +fact_market_quarter --project-dir /usr/app",
         docker_url="unix:///var/run/docker.sock",
         tls_hostname=False,
         tls_verify=False,
         network_mode="bridge",
-        mount_tmp_dir=False,  # 임시 디렉토리 마운트 비활성화
+        mount_tmp_dir=False,
         mounts=[
             Mount(
                 source=os.getenv("DBT_PROJECT_PATH"),
@@ -59,5 +57,4 @@ with DAG(
         }
     )
 
-    # 순서 보장: 연결 테스트 성공 후 dbt 실행
     db_conn >> dbt_run

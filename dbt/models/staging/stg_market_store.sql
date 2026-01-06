@@ -2,7 +2,6 @@ WITH base AS (
     SELECT 
         area_name,
         created_at,
-        -- 배열 데이터를 미리 추출
         data -> 'CITYDATA' -> 'LIVE_CMRCL_STTS' -> 'CMRCL_RSB' AS commerce_array
     FROM {{ source('raw_data', 'realtime_city_data') }}
 )
