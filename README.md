@@ -1,5 +1,8 @@
 # seoul-airflow
-DE7 최종 팀 프로젝트
+## 프로젝트 소개
+서울시 Open API를 활용한 데이터 파이프라인 구현 및 대시보드 구성
+
+![S3 -> PostgreSQL -> (dbt) -> metabse](architecture.png)
 
 ## 폴더 구조
     .
