@@ -32,10 +32,7 @@ def save_data_to_s3(**context):
     s3_key = SeoulAPI.generate_s3_key(api_name, folder_name, target_date)
 
     # S3에 업로드
-    s3 = S3Manager(
-        conn_id=AWS_CONN_ID,
-        bucket_name=S3_BUCKET_NAME
-    )
+    s3 = S3Manager(conn_id=AWS_CONN_ID, bucket_name=S3_BUCKET_NAME)
     s3.upload_json(key=s3_key, data=data)
     print(f"S3 저장 완료: s3://{S3_BUCKET_NAME}/{s3_key}")
     return s3_key
@@ -59,9 +56,12 @@ def create_table_if_not_exists(**context):
     print(f"테이블 생성 완료: {TABLE_NAME}")
 
 def insert_data_to_postgres(**context):
-    ti = context["ti"]
-    data = ti.xcom_pull(task_ids="req_api")
+    s3 = S3Manager(conn_id=AWS_CONN_ID, bucket_name=S3_BUCKET_NAME)
     db = PostgreSqlManager(conn_id=POSTGRES_CONN_ID)
+
+    ti = context["ti"]
+    s3_key = ti.xcom_pull(task_ids="save_file")
+    data = s3.read_json(s3_key)
     
     # 필터 함수: MSRMT_DT 또는 MSRSTN_NM이 없는 경우 제외
     def filter_valid_data(row):
